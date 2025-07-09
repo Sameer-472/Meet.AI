@@ -18,8 +18,13 @@ import { useRouter } from "next/navigation";
 
 
 const formSchema = z.object({
+    name: z.string(),
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, { message: "Password must be at least 6 characters long" }),
+    confirmPassword: z.string().min(6, { message: "Password must be at least 6 characters long" })
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Password don't match",
+    path: ['confirmPassword']
 })
 
 
@@ -32,6 +37,7 @@ export const SignUpView = () => {
     const form = useForm<FormSchema>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            name: "",
             email: "",
             password: "",
         },
@@ -41,10 +47,11 @@ export const SignUpView = () => {
     const onSubmit = async (data: FormSchema) => {
         setIsLoading(true);
         setError(null);
-        await authClient.signIn.email(
+        await authClient.signUp.email(
             {
+                name: data.name,
                 email: data.email,
-                password: data.password
+                password: data.password,
             },
             {
                 onSuccess: () => {
@@ -77,8 +84,10 @@ export const SignUpView = () => {
                                     </p>
                                 </div>
                                 <div className="grid gap-3">
+                                    <CustomInput label={"Name"} name={"name"} control={form.control} type="text" />
                                     <CustomInput label={"Email"} name={"email"} control={form.control} type="email" />
                                     <CustomInput label={"Password"} name={"password"} control={form.control} type="password" />
+                                    <CustomInput label={"Confirm Password"} name={"confirmPassword"} control={form.control} type="password" />
                                 </div>
                                 {!!error && (
                                     <Alert className="bg-destructive/10 border-none">
@@ -104,7 +113,7 @@ export const SignUpView = () => {
                                 </div>
                                 <div className="text-center text-sm">
                                     Already have an account? {""}
-                                    <Link href={"/sign-in"} className="underline underline-offset-4">Sign in</Link>
+                                    <Link href={"/sign-in"} className="underline underline-offset-4">Sign Up</Link>
                                 </div>
                             </div>
                         </form>
