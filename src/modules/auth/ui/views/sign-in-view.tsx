@@ -26,7 +26,8 @@ const formSchema = z.object({
 type FormSchema = z.infer<typeof formSchema>;
 
 export const SignInView = () => {
-    const [error, setError] = useState<string | null>(null)
+    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm<FormSchema>({
         resolver: zodResolver(formSchema),
@@ -38,18 +39,20 @@ export const SignInView = () => {
 
     const router = useRouter();
     const onSubmit = async (data: FormSchema) => {
+        setIsLoading(true);
         setError(null);
-
-        const { error } = await authClient.signIn.email(
+        await authClient.signIn.email(
             {
                 email: data.email,
                 password: data.password
             },
             {
                 onSuccess: () => {
+                    setIsLoading(false);
                     router.push('/')
                 },
                 onError: (error) => {
+                    setIsLoading(false);
                     console.log("error", error)
                     setError(error.error.message)
                 }
@@ -80,10 +83,10 @@ export const SignInView = () => {
                                 {!!error && (
                                     <Alert className="bg-destructive/10 border-none">
                                         <OctagonAlertIcon className="h-4 w-4 !text-destructive" />
-                                        <AlertTitle>Error</AlertTitle>
+                                        <AlertTitle>{error}</AlertTitle>
                                     </Alert>
                                 )}
-                                <Button type="submit" className="w-full">
+                                <Button disabled={isLoading} type="submit" className="w-full">
                                     Sign in
                                 </Button>
                                 <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
@@ -92,10 +95,10 @@ export const SignInView = () => {
                                     </span>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <Button variant={"outline"} className="w-full" type="button">
+                                    <Button disabled={isLoading} variant={"outline"} className="w-full" type="button">
                                         Google
                                     </Button>
-                                    <Button variant={"outline"} className="w-full" type="button">
+                                    <Button disabled={isLoading} variant={"outline"} className="w-full" type="button">
                                         Github
                                     </Button>
                                 </div>
