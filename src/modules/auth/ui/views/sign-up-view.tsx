@@ -13,7 +13,8 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
+import { FaGithub, FaGoogle } from "react-icons/fa"
+import Image from "next/image";
 // import { useForm } from "react-hook-form";
 
 
@@ -67,6 +68,28 @@ export const SignUpView = () => {
         )
     }
 
+    const onSocial = async (provider: "google" | "github") => {
+        setIsLoading(true);
+        setError(null);
+        await authClient.signIn.social(
+            {
+                provider: provider,
+                callbackURL: '/'
+            },
+            {
+                onSuccess: () => {
+                    setIsLoading(false);
+                    router.push('/')
+                },
+                onError: (error: any) => {
+                    setIsLoading(false);
+                    console.log("error", error)
+                    setError(error.error.message)
+                }
+            }
+        )
+    }
+
     console.log({ error })
     return (
         <div className="flex flex-col gap-6">
@@ -104,22 +127,22 @@ export const SignUpView = () => {
                                     </span>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <Button disabled={isLoading} variant={"outline"} className="w-full" type="button">
-                                        Google
+                                    <Button onClick={() => onSocial('google')} disabled={isLoading} variant={"outline"} className="w-full cursor-pointer" type="button">
+                                        <FaGoogle />
                                     </Button>
-                                    <Button disabled={isLoading} variant={"outline"} className="w-full" type="button">
-                                        Github
+                                    <Button onClick={() => onSocial('github')} disabled={isLoading} variant={"outline"} className="w-full cursor-pointer" type="button">
+                                        <FaGithub />
                                     </Button>
                                 </div>
                                 <div className="text-center text-sm">
                                     Already have an account? {""}
-                                    <Link href={"/sign-in"} className="underline underline-offset-4">Sign Up</Link>
+                                    <Link href={"/sign-in"} className="underline underline-offset-4">Sign In</Link>
                                 </div>
                             </div>
                         </form>
                     </Form>
                     <div className="bg-radial from-green-700 to-green-600 relative hidden md:flex flex-col">
-                        <p className="text-2xl font-semibold text-white">Meet.AI</p>
+                        <Image src="/assets/Meet.AI.png" alt="logo" width={100} height={100} className="w-[100%] h-[100%]"/>
                     </div>
                 </CardContent>
             </Card>

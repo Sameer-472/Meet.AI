@@ -26,6 +26,7 @@ const CustomInput = <T extends FieldValues>({ control, name, label, type, placeh
                             {...field}
                         />
                     </FormControl>
+                    <FormMessage/>
                 </FormItem>
             )}
         />

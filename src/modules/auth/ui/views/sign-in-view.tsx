@@ -38,18 +38,42 @@ export const SignInView = () => {
     });
 
     const router = useRouter();
+
     const onSubmit = async (data: FormSchema) => {
         setIsLoading(true);
         setError(null);
         await authClient.signIn.email(
             {
                 email: data.email,
-                password: data.password
+                password: data.password,
+                callbackURL: '/'
             },
             {
                 onSuccess: () => {
                     setIsLoading(false);
                     router.push('/')
+                },
+                onError: (error) => {
+                    setIsLoading(false);
+                    console.log("error", error)
+                    setError(error.error.message)
+                }
+            }
+        )
+    }
+
+    const onSocial = async (provider: "google" | "github") => {
+        setIsLoading(true);
+        setError(null);
+        await authClient.signIn.social(
+            {
+                provider: provider,
+                callbackURL: '/'
+            },
+            {
+                onSuccess: () => {
+                    setIsLoading(false);
+                    // router.push('/')
                 },
                 onError: (error) => {
                     setIsLoading(false);
@@ -95,10 +119,10 @@ export const SignInView = () => {
                                     </span>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <Button disabled={isLoading} variant={"outline"} className="w-full" type="button">
+                                    <Button onClick={() => onSocial('google')} disabled={isLoading} variant={"outline"} className="w-full" type="button">
                                         Google
                                     </Button>
-                                    <Button disabled={isLoading} variant={"outline"} className="w-full" type="button">
+                                    <Button onClick={() => onSocial('github')} disabled={isLoading} variant={"outline"} className="w-full" type="button">
                                         Github
                                     </Button>
                                 </div>
