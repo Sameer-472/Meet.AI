@@ -1,5 +1,6 @@
 import ErrorState from '@/components/generalComponents/errorState';
 import LoadingState from '@/components/generalComponents/loadingState'
+import AgentsView from '@/modules/agents/views/agents-view';
 import { getQueryClient, trpc } from '@/trpc/server'
 import { HydrationBoundary } from '@tanstack/react-query'
 import React, { Suspense } from 'react'
@@ -12,7 +13,7 @@ const Page = () => {
         <HydrationBoundary>
             <Suspense fallback={<LoadingState title='Loading Agents' description='this may take a few seconds' />}>
                 <ErrorBoundary fallback={<ErrorState title='Error Loading Agents' description='Something went wrong' />}>
-                    <div>Agents Page</div>
+                    <AgentsView />
                 </ErrorBoundary>
             </Suspense>
         </HydrationBoundary>
