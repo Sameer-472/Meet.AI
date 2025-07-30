@@ -7,6 +7,11 @@ import { useForm } from 'react-hook-form';
 import z from 'zod';
 import { agentsInsertSchema } from '../schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Form } from '@/components/ui/form';
+import GeneratedAvatar from '@/components/generalComponents/generatedAvatar/generated-avatar';
+import { CustomInput, CustomTextArea } from '@/components/generalComponents';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 
 interface AgentFormProps {
@@ -24,10 +29,26 @@ export const AgentForm = ({
     const router = useRouter();
     const queryClient = useQueryClient();
 
-    const createClinet = useMutation(
+    const createAgent = useMutation(
         trpc.agents.create.mutationOptions({
-            onSuccess: () => { },
-            onError: () => { }
+            onSuccess: () => {
+                queryClient.invalidateQueries(
+                    trpc.agents.getMany.queryOptions()
+                )
+
+                if (initialValue?.id) {
+                    queryClient.invalidateQueries(
+                        trpc.agents.getOne.queryOptions({
+                            id: initialValue.id
+                        })
+                    )
+                }
+                toast.success("Agent Updated")
+                onCancel?.()
+            },
+            onError: (error) => {
+                toast.error(error.message)
+            }
         })
     )
 
@@ -35,7 +56,39 @@ export const AgentForm = ({
         resolver: zodResolver(agentsInsertSchema),
         defaultValues: {
             name: initialValue?.name ?? "",
-            instruction: initialValue?.instructions ?? ""
+            instructions: initialValue?.instructions ?? ""
         }
     })
+
+    const isEdit = !!initialValue?.id;
+    const isPending = createAgent?.isPending;
+
+    const onSubmit = (values: z.infer<typeof agentsInsertSchema>) => {
+        if (isEdit) {
+            console.log("Update agent")
+        }
+        else {
+            createAgent.mutate(values);
+        }
+    }
+
+    return (
+        <Form {...form}>
+            <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit)}>
+                <GeneratedAvatar className='border size-16' seed={form.watch("name")} variant='botttsNeutral' />
+                <CustomInput name='name' control={form.control} label='Name' placeholder='eg..John Doe' />
+                <CustomTextArea name='instructions' control={form.control} label='Instruction' placeholder='You are a helpful math assistant that can answer questions with taks' />
+                <div className='flex justify-between gap-x-2'>
+                    {onCancel && (
+                        <Button variant={"ghost"} type='button' onClick={() => onCancel()}>
+                            Cancel
+                        </Button>
+                    )}
+                    <Button disabled={isPending} type='submit'>
+                        {isEdit ? "Update" : "Create"}
+                    </Button>
+                </div>
+            </form>
+        </Form>
+    )
 }

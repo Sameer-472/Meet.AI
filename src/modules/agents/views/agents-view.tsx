@@ -4,17 +4,23 @@ import { Button } from '@/components/ui/button';
 import { useTRPC } from '@/trpc/client'
 import { useSuspenseQuery } from '@tanstack/react-query';
 import React, { useState } from 'react'
+import { DataTable } from '../components/data-table';
+import { columns } from '../components/columns';
+import EmptyState from '@/components/generalComponents/emptyState';
 
 const AgentsView = () => {
     const trpc = useTRPC();
     const [open, setOpen] = useState(true);
-    // const {data} = useSuspenseQuery(trpc.agents)
+    const { data } = useSuspenseQuery(trpc.agents.getMany.queryOptions());
     return (
         <>
-            <ResponsiveDialog title='Add Agents' description='Responsive description' open={open} onOpenChange={setOpen} >
-                <Button>Some test</Button>
-            </ResponsiveDialog>
-            <div>AgentsView</div>
+            {/* <div>{JSON.stringify(data, null, 2)}</div> */}
+            <div className='flex pb-4 px-4 md:px-8 flex flex-col gap-y-4'>
+                <DataTable columns={columns} data={data} />
+                {data.length == 0 && (
+                    <EmptyState title='Create your first agent' description='Create an agent to join you meeting. Each agent will follow your instruction and can interact with participants during th call.'/>
+                )}
+            </div>
         </>
     )
 }

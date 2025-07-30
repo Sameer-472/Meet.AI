@@ -1,4 +1,5 @@
 import CustomInput from "./customInput";
+import CustomTextArea from "./customTextAres";
 import LoadingState from "./loadingState";
 
-export { CustomInput , LoadingState }
+export { CustomInput, LoadingState, CustomTextArea }
