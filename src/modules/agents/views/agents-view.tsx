@@ -11,7 +11,7 @@ import EmptyState from '@/components/generalComponents/emptyState';
 const AgentsView = () => {
     const trpc = useTRPC();
     const [open, setOpen] = useState(true);
-    const { data } = useSuspenseQuery(trpc.agents.getMany.queryOptions());
+    const { data } = useSuspenseQuery(trpc.agents.getMany.queryOptions({}));
     return (
         <>
             {/* <div>{JSON.stringify(data, null, 2)}</div> */}
