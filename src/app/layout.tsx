@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { TRPCReactProvider } from "@/trpc/client";
+import { NuqsAdapter } from 'nuqs/adapters/next';
 
 
 const inter = Inter({
@@ -21,13 +22,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <TRPCReactProvider>
-        <body
-          className={`${inter.variable} antialiased`}
-        >
-          {children}
-        </body>
-      </TRPCReactProvider>
+      <NuqsAdapter>
+        <TRPCReactProvider>
+          <body
+            className={`${inter.variable} antialiased`}
+          >
+            {children}
+          </body>
+        </TRPCReactProvider>
+      </NuqsAdapter>
     </html>
   );
 }

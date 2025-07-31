@@ -1,16 +1,22 @@
 import ErrorState from '@/components/generalComponents/errorState';
 import LoadingState from '@/components/generalComponents/loadingState'
 import AgentsListHeader from '@/modules/agents/components/list-header';
+import { loadSearchParams } from '@/modules/agents/params';
 import AgentsView from '@/modules/agents/views/agents-view';
 import { getQueryClient, trpc } from '@/trpc/server'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { SearchParams } from 'nuqs';
 import React, { Suspense } from 'react'
 import { ErrorBoundary } from "react-error-boundary";
 import { Toaster } from 'sonner';
 
-const Page = () => {
+interface Prop {
+    searchParams: Promise<SearchParams>
+}
+const Page = async ({ searchParams }: Prop) => {
+    const filters = await loadSearchParams(searchParams);
     const queryClient = getQueryClient();
-    // void queryClient.prefetchQuery(trpc.agents.getMany.queryOptions())
+    void queryClient.prefetchQuery(trpc.agents.getMany.queryOptions({ ...filters}))
     return (
         <>
             <Toaster />
