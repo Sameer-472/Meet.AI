@@ -32,7 +32,7 @@ const useConfirm = ({ title, description }: ConfirmProps): [() => JSX.Element, (
 
     const ConfirmationDialog = () => (
         <ResponsiveDialog open={promise !== null} onOpenChange={handleClose} title={title} description={description}>
-            <div className="pt-4 w-full flex flex-col-reverse gap-y-2 ls:flex-row gap-x-2 items-center">
+            <div className="pt-4 w-full flex lg:justify-end flex-col-reverse gap-y-2 lg:flex-row gap-x-2 items-center">
                 <Button variant="outline" onClick={handleCancel} className="w-full lg:w-auto">
                     Cancel
                 </Button>
