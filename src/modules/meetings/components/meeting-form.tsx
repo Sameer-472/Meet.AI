@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTRPC } from '@/trpc/client';
 import { useRouter } from 'next/navigation';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import z from 'zod';
 // import { meetingInsertShce } from '../schemas';
@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { meetingInsertSchema } from '../schemas';
 import { MeetingGetOne } from '../types';
+import CustomDropdown from '@/components/generalComponents/customDropdown';
 
 
 interface MeetingFormProps {
@@ -29,6 +30,13 @@ export const MeetingForms = ({
     const trpc = useTRPC();
     const router = useRouter();
     const queryClient = useQueryClient();
+    const [agentSearch, setAgentSearch] = useState("");
+    const [open, setOpen] = useState(false);
+
+    const agents = useQuery(trpc.agents.getMany.queryOptions({
+        pageSize: 100,
+        search: agentSearch
+    }))
 
     const createMeeting = useMutation(
         trpc.meetings.create.mutationOptions({
@@ -100,6 +108,16 @@ export const MeetingForms = ({
         <Form {...form}>
             <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit)}>
                 <CustomInput name='name' control={form.control} label='Title' placeholder='eg..John Doe' />
+                <CustomDropdown control={form.control} name='agentId' label='Assign to Agent' options={(agents?.data?.items || []).map((agent) => ({
+                    id: agent.id,
+                    value: agent.name,
+                    children: (
+                        <div className='flex items-center gap-2'>
+                            <GeneratedAvatar seed={agent.name} variant={'botttsNeutral'} className='border size-5' />
+                            <span>{agent.name}</span>
+                        </div>
+                    )
+                })  )} setSearch={setAgentSearch} />
                 <div className='flex justify-between gap-x-2'>
                     {onCancel && (
                         <Button variant={"ghost"} type='button' onClick={() => onCancel()}>
