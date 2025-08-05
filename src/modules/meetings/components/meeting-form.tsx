@@ -1,5 +1,4 @@
 import React from 'react';
-import { AgentGetOne } from '../types';
 import { useTRPC } from '@/trpc/client';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -13,39 +12,40 @@ import { CustomInput, CustomTextArea } from '@/components/generalComponents';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { meetingInsertSchema } from '../schemas';
+import { MeetingGetOne } from '../types';
 
 
-interface AgentFormProps {
-    onSuccess?: () => void;
+interface MeetingFormProps {
+    onSuccess?: (id?: string) => void;
     onCancel?: () => void;
-    initialValue?: AgentGetOne;
+    initialValue?: MeetingGetOne;
 }
 
-export const AgentForm = ({
+export const MeetingForms = ({
     onSuccess,
     onCancel,
     initialValue
-}: AgentFormProps) => {
+}: MeetingFormProps) => {
     const trpc = useTRPC();
     const router = useRouter();
     const queryClient = useQueryClient();
 
-    const createAgent = useMutation(
-        trpc.agents.create.mutationOptions({
-            onSuccess: () => {
+    const createMeeting = useMutation(
+        trpc.meetings.create.mutationOptions({
+            onSuccess: (data) => {
                 queryClient.invalidateQueries(
-                    trpc.agents.getMany.queryOptions({})
+                    trpc.meetings.getMany.queryOptions({})
                 )
 
                 if (initialValue?.id) {
                     queryClient.invalidateQueries(
-                        trpc.agents.getOne.queryOptions({
+                        trpc.meetings.getOne.queryOptions({
                             id: initialValue.id
                         })
                     )
                 }
-                toast.success("Agent Updated")
-                onCancel?.()
+                toast.success("Meeting Updated")
+                onSuccess?.(data?.id)
             },
             onError: (error) => {
                 toast.error(error.message)
@@ -53,21 +53,21 @@ export const AgentForm = ({
         })
     );
 
-    const updateAgent = useMutation(
-        trpc.agents.updateAgent.mutationOptions({
+    const updateMeeting = useMutation(
+        trpc.meetings.updateMeeting.mutationOptions({
             onSuccess: () => {
                 queryClient.invalidateQueries(
-                    trpc.agents.getMany.queryOptions({})
+                    trpc.meetings.getMany.queryOptions({})
                 )
 
                 if (initialValue?.id) {
                     queryClient.invalidateQueries(
-                        trpc.agents.getOne.queryOptions({
+                        trpc.meetings.getOne.queryOptions({
                             id: initialValue.id
                         })
                     )
                 }
-                toast.success("Agent Updated")
+                toast.success("Meeting Updated")
                 onCancel?.()
             },
             onError: (error) => {
@@ -80,19 +80,19 @@ export const AgentForm = ({
         resolver: zodResolver(meetingInsertSchema),
         defaultValues: {
             name: initialValue?.name ?? "",
-            instructions: initialValue?.instructions ?? ""
+            // instructions: initialValue?.instructions ?? ""
         }
     })
 
     const isEdit = !!initialValue?.id;
-    const isPending = createAgent?.isPending || updateAgent?.isPending;
+    const isPending = createMeeting?.isPending || updateMeeting?.isPending;
 
     const onSubmit = (values: z.infer<typeof meetingInsertSchema>) => {
         if (isEdit) {
-            updateAgent.mutate({ ...values, id: initialValue?.id })
+            updateMeeting.mutate({ ...values, id: initialValue?.id })
         }
         else {
-            createAgent.mutate(values);
+            createMeeting.mutate(values);
         }
     }
 

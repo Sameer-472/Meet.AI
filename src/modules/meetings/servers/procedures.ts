@@ -6,6 +6,7 @@ import { and, count, desc, eq, getTableColumns, ilike, sql } from "drizzle-orm";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constant";
 import { TRPCError } from "@trpc/server";
 import { agentsInsertSchema } from "@/modules/agents/schemas";
+import { meetingInsertSchema, meetingUpdateSchema } from "../schemas";
 
 
 export const meetingRouter = createTRPCRouter({
@@ -42,7 +43,7 @@ export const meetingRouter = createTRPCRouter({
             totalPages
         };
     }),
-    create: protectedProcedure.input(agentsInsertSchema).mutation(async ({ input, ctx }) => {
+    create: protectedProcedure.input(meetingInsertSchema).mutation(async ({ input, ctx }) => {
         // const {name , instructions} = input;
         // const {auth} = ctx;
         const [createdMeeting] = await db.insert(meetings).values({
@@ -68,24 +69,24 @@ export const meetingRouter = createTRPCRouter({
             })
         }
     }),
-    // updateMeeting: protectedProcedure
-    //     .input(agentUpdateSchema)
-    //     .mutation(async ({ ctx, input }) => {
-    //         const updatedAgent = await db
-    //             .update(agents)
-    //             .set(input)
-    //             .where(
-    //                 and(
-    //                     eq(agents.id, input.id),
-    //                     eq(agents.userId, ctx.auth.user.id)
-    //                 )
-    //             ).returning()
-    //         if (!updatedAgent) {
-    //             throw new TRPCError({
-    //                 code: 'NOT_FOUND',
-    //                 message: 'Agent not found'
-    //             })
-    //         }
-    //         return updatedAgent;
-    //     })
+    updateMeeting: protectedProcedure
+        .input(meetingUpdateSchema)
+        .mutation(async ({ ctx, input }) => {
+            const updatedMeeting = await db
+                .update(meetings)
+                .set(input)
+                .where(
+                    and(
+                        eq(meetings.id, input.id),
+                        eq(meetings.userId, ctx.auth.user.id)
+                    )
+                ).returning()
+            if (!updatedMeeting) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Meeting not found'
+                })
+            }
+            return updatedMeeting;
+        })
 })
