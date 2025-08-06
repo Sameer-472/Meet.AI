@@ -35,7 +35,7 @@ const CommandSelect: React.FC<Props> = ({
                 </div>
                 <ChevronsUpDownIcon />
             </Button>
-            <CommandResponsiveDialog>
+            <CommandResponsiveDialog shouldFilter={!onSearch} open={open} onOpenChange={setOpen}>
                 <CommandInput placeholder='Search' onValueChange={onSearch} />
                 <CommandList>
                     <CommandEmpty>

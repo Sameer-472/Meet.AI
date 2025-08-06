@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { meetingInsertSchema } from '../schemas';
 import { MeetingGetOne } from '../types';
 import CustomDropdown from '@/components/generalComponents/customDropdown';
+import NewAgentsDialog from '@/modules/agents/components/new-agent-dialog';
 
 
 interface MeetingFormProps {
@@ -31,7 +32,7 @@ export const MeetingForms = ({
     const router = useRouter();
     const queryClient = useQueryClient();
     const [agentSearch, setAgentSearch] = useState("");
-    const [open, setOpen] = useState(false);
+    const [newAgentDialogOpen, setNewAgentDialogOpen] = useState(false)
 
     const agents = useQuery(trpc.agents.getMany.queryOptions({
         pageSize: 100,
@@ -105,30 +106,36 @@ export const MeetingForms = ({
     }
 
     return (
-        <Form {...form}>
-            <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit)}>
-                <CustomInput name='name' control={form.control} label='Title' placeholder='eg..John Doe' />
-                <CustomDropdown control={form.control} name='agentId' label='Assign to Agent' options={(agents?.data?.items || []).map((agent) => ({
-                    id: agent.id,
-                    value: agent.name,
-                    children: (
-                        <div className='flex items-center gap-2'>
-                            <GeneratedAvatar seed={agent.name} variant={'botttsNeutral'} className='border size-5' />
-                            <span>{agent.name}</span>
-                        </div>
-                    )
-                })  )} setSearch={setAgentSearch} />
-                <div className='flex justify-between gap-x-2'>
-                    {onCancel && (
-                        <Button variant={"ghost"} type='button' onClick={() => onCancel()}>
-                            Cancel
+        <>
+        <NewAgentsDialog open={newAgentDialogOpen} onOpenChange={setNewAgentDialogOpen}/>
+            <Form {...form}>
+                <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit)}>
+                    <CustomInput name='name' control={form.control} label='Title' placeholder='eg..John Doe' />
+                    <CustomDropdown description={<>
+                        Not Found what you are looking for ? {" "}
+                        <a className='text-blue-500 hover:underline' onClick={() => setNewAgentDialogOpen(true)}>Create a new agent</a>
+                    </>} control={form.control} name='agentId' label='Assign to Agent' options={(agents?.data?.items || []).map((agent) => ({
+                        id: agent.id,
+                        value: agent.name,
+                        children: (
+                            <div className='flex items-center gap-2'>
+                                <GeneratedAvatar seed={agent.name} variant={'botttsNeutral'} className='border size-5' />
+                                <span>{agent.name}</span>
+                            </div>
+                        )
+                    }))} setSearch={setAgentSearch} />
+                    <div className='flex justify-between gap-x-2'>
+                        {onCancel && (
+                            <Button variant={"ghost"} type='button' onClick={() => onCancel()}>
+                                Cancel
+                            </Button>
+                        )}
+                        <Button disabled={isPending} type='submit'>
+                            {isEdit ? "Update" : "Create"}
                         </Button>
-                    )}
-                    <Button disabled={isPending} type='submit'>
-                        {isEdit ? "Update" : "Create"}
-                    </Button>
-                </div>
-            </form>
-        </Form>
+                    </div>
+                </form>
+            </Form>
+        </>
     )
 }

@@ -5,10 +5,10 @@ import MeetingHeader from '../components/meetings-header';
 
 const MeetingsView = () => {
 
-    // const trpc = useTRPC();
-    // const { data } = useQuery(trpc.meetings.getMany.queryOptions({}));
+    const trpc = useTRPC();
+    const { data } = useQuery(trpc.meetings.getMany.queryOptions({}));
     return (
-        <div>
+        <div className='overflow-x-scroll'>
             <MeetingHeader />
         </div>
     )
