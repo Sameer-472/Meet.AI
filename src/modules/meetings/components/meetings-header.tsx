@@ -4,19 +4,24 @@ import { Button } from '@/components/ui/button'
 import { PlusIcon, XCircleIcon } from 'lucide-react'
 import React, { useState } from 'react'
 import NewAgentsDialog from './new-meeting-dialog'
-import { SearchFilter } from './meetings-search-filter'
+import { MeetingSearchFilter } from './meetings-search-filter'
 import { useMeetingsFilters } from '../hooks/use-meeting-filters'
 import { DEFAULT_PAGE } from '@/constant'
+import { StatusFilter } from './status-filter'
+import { Agent } from 'http'
+import { AgentIdFilter } from './agent-id-filter'
 
 const MeetingHeader = () => {
     const [open, setOpen] = useState(false);
     const [filters, setFilters] = useMeetingsFilters();
-    const isAnyFilterModified = !!filters.search;
+    const isAnyFilterModified = !!filters.search || !!filters.search || !!filters.agentId;
 
     const onClearFilters = () => {
         setFilters({
             search: "",
-            page: DEFAULT_PAGE
+            page: DEFAULT_PAGE,
+            status: null,
+            agentId: "",
         })
     }
     return (
@@ -30,7 +35,9 @@ const MeetingHeader = () => {
                         New Meeting</Button>
                 </div>
                 <div className='flex items-center gap-x-2 p-1'>
-                    <SearchFilter />
+                    <MeetingSearchFilter />
+                    <StatusFilter />
+                    <AgentIdFilter />
                     {isAnyFilterModified && (
                         <Button variant={"outline"} size={"sm"} onClick={onClearFilters}>
                             <XCircleIcon />

@@ -9,12 +9,14 @@ import { cn } from '@/lib/utils'
 interface Props {
     options: Array<{ id: string, value: string, children: ReactNode }>;
     onSelect: (value: string) => void;
-    onSearch: (value: string) => void;
+    onSearch?: (value: string) => void;
     value: string;
     placeholder?: string;
     isSearchable?: boolean;
     className?: string;
 }
+
+
 
 const CommandSelect: React.FC<Props> = ({
     options,
@@ -27,6 +29,11 @@ const CommandSelect: React.FC<Props> = ({
 }: Props) => {
     const [open, setOpen] = useState(false);
     const selectedOption = options.find(option => option.value === value);
+
+    const handleOpenChange = (open: boolean) => {
+        onSearch?.("");
+        setOpen(open);
+    }
     return (
         <>
             <Button type='button' variant={'outline'} className={cn('h-9 justify-between w-full px-3 font-normal', className)} onClick={() => setOpen(true)}>
@@ -35,7 +42,7 @@ const CommandSelect: React.FC<Props> = ({
                 </div>
                 <ChevronsUpDownIcon />
             </Button>
-            <CommandResponsiveDialog shouldFilter={!onSearch} open={open} onOpenChange={setOpen}>
+            <CommandResponsiveDialog shouldFilter={!onSearch} open={open} onOpenChange={handleOpenChange}>
                 <CommandInput placeholder='Search' onValueChange={onSearch} />
                 <CommandList>
                     <CommandEmpty>
